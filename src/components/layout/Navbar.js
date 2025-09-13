@@ -1,4 +1,4 @@
-// src/components/layout/Navbar.js
+
 "use client";
 
 import Link from "next/link";
@@ -15,7 +15,7 @@ export default function Navbar() {
         <Link href="/">Transactions</Link>
         <Link href="/dashboard">Dashboard</Link>
 
-        {/* right-aligned auth buttons */}
+        
         <div className="ml-auto">
           {!loading && !user && (
             <Button onClick={signInWithGoogle}>Sign in with Google</Button>

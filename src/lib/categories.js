@@ -8,5 +8,7 @@ export const CATEGORIES = [
   "Shopping",
   "Education",
   "Salary",
+  "expense",
+  "credit",
   "Other",
 ];

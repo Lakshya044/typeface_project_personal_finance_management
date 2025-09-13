@@ -10,7 +10,6 @@ export default function TransactionTable({ limit }) {
   if (isLoading) return <p>Loading…</p>;
   if (!transactions.length) return <p>No transactions yet.</p>;
 
-  // newest → oldest
   let rows = [...transactions].sort(
     (a, b) => new Date(b.date) - new Date(a.date)
   );
@@ -23,10 +22,10 @@ export default function TransactionTable({ limit }) {
     try {
       const res = await fetch(`/api/transactions/${id}`, { method: "DELETE" });
       if (!res.ok) throw new Error("Delete failed");
-      await mutate();          // revalidate from server
+      await mutate();         
     } catch (err) {
       setError(err.message);
-      mutate(previous, false); // rollback
+      mutate(previous, false);
     }
   }
 

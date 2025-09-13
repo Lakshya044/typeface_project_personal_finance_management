@@ -1,4 +1,4 @@
-// src/components/charts/CategoryPieChart.js
+
 "use client";
 
 import {
@@ -19,7 +19,6 @@ const COLORS = [
 
 /**
  * @param {{ month?: string }} props
- *        month → "YYYY-MM" (e.g. "2025-07"); if omitted, aggregates all data.
  */
 export default function CategoryPieChart({ month }) {
   const { transactions } = useTransactions();

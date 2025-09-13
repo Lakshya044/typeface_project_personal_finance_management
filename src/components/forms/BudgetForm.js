@@ -1,4 +1,4 @@
-// src/components/forms/BudgetForm.js
+
 "use client";
 
 import { useState } from "react";
@@ -19,7 +19,7 @@ import {
   SelectValue,
 } 
 from "@/components/ui/select";
-import { Button } from "@/components/ui/button";// assumes you re-export from an index file
+import { Button } from "@/components/ui/button";
 
 /**
  * @param {{ preset?: object, defaultMonth?: string, onClose?: () => void }}
@@ -45,21 +45,20 @@ export default function BudgetForm({ preset, defaultMonth, onClose }) {
 
   const [loading, setLoading] = useState(false);
 
-  /** Save handler (POST for new, PUT for edit) */
   async function onSubmit(data) {
     setLoading(true);
     const method = preset?._id ? "PUT" : "POST";
     const url = preset?._id ? `/api/budgets/${preset._id}` : "/api/budgets";
 
     await fetch(url, { method, body: JSON.stringify(data) });
-    await mutate(); // refresh SWR cache
+    await mutate(); 
 
     setLoading(false);
     reset();
     onClose?.();
   }
 
-  /** Delete handler (only shows on edit mode) */
+  
   async function handleDelete() {
     if (!preset?._id) return;
     const confirmed = confirm("Delete this budget?");

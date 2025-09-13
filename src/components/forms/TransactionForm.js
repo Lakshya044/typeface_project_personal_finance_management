@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { transactionSchema } from "@/lib/validation";
 import useTransactions from "@/hooks/useTransactions";
-import { Button } from "@/components/ui/button";   // from shadcn add
+import { Button } from "@/components/ui/button";   
 import { Input } from "@/components/ui/input";
 
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
