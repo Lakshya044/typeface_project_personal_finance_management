@@ -6,7 +6,7 @@ import ReceiptTransactionsExtractor from "@/components/forms/ReceiptTransactions
 export default function Home() {
   return (
     <div className="grid gap-6 lg:grid-cols-2">
-    
+      {/* Left column: form + table */}
       <div className="space-y-6">
         <h2 className="text-xl font-semibold">Add Transaction</h2>
         <TransactionForm />
@@ -18,7 +18,7 @@ export default function Home() {
         <TransactionTable />
       </div>
 
-     
+      {/* Right column: chart */}
       <div>
         <h2 className="text-xl font-semibold mb-4">Monthly Expenses</h2>
         <ExpensesBarChart />

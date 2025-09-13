@@ -1,94 +1,158 @@
 'use client'
-import React, { useState } from 'react'
-import { useForm } from 'react-hook-form'
+import React, { useState } from 'react';
+import { useForm } from 'react-hook-form';
 
 const ReceiptTransactionsExtractor = () => {
-  const { handleSubmit } = useForm()
-  const [file, setFile] = useState(null)
-  const [transactions, setTransactions] = useState([])
-  const [loading, setLoading] = useState(false)
-  const [saving, setSaving] = useState(false)
-  const [error, setError] = useState('')
-  const [info, setInfo] = useState('')
-  const [providerUsed, setProviderUsed] = useState('')
+  const { handleSubmit } = useForm(); 
+ 
+  const [file, setFile] = useState(null);
+  const [transactions, setTransactions] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+  const [info, setInfo] = useState('');
+  const [providerUsed, setProviderUsed] = useState('');
+  const [debugOpen, setDebugOpen] = useState(false);
+  const [debugLines, setDebugLines] = useState([]); 
+
 
   function handleFileChange(e) {
-    setError('')
-    setInfo('')
-    setTransactions([])
-    const f = e.target.files?.[0]
-    if (!f) { setFile(null); return }
+    setError('');
+    setInfo('');
+    setTransactions([]);
+    const f = e.target.files?.[0];
+    if (!f) { setFile(null); return; }
     if (!/^(application\/pdf|image\/)/.test(f.type)) {
-      setError('Only PDF or image files are supported.')
-      setFile(null)
-      return
+      setError('Only PDF or image files are supported.');
+      setFile(null);
+      return;
     }
     if (f.size > 10 * 1024 * 1024) {
-      setError('File exceeds 10MB limit.')
-      setFile(null)
-      return
+      setError('File exceeds 10MB limit.');
+      setFile(null);
+      return;
     }
-    setFile(f)
+    setFile(f);
   }
 
   const onSubmit = async () => {
-    if (!file) { setError('Please choose a file first.'); return }
-    setLoading(true)
-    setError('')
-    setInfo('')
-    setTransactions([])
-    setProviderUsed('')
+    if (!file) { setError('Please choose a file first.'); return; }
+    setLoading(true);
+    setError('');
+    setInfo('');
+    setTransactions([]);
+    setProviderUsed('');
     try {
-      const fd = new FormData()
-      fd.append('file', file)
-      const res = await fetch('/api/parse-receipt', { method: 'POST', body: fd })
-      const data = await res.json().catch(() => ({}))
+      const fd = new FormData();
+      fd.append('file', file);
+      const res = await fetch('/api/parse-receipt', { method: 'POST', body: fd });
+      const data = await res.json().catch(() => ({}));
+      console.log('[ReceiptExtractor] /api/parse-receipt -> status:', res.status, 'payload:', data);
       if (!res.ok) {
-        setError(data?.error || 'Parsing failed.')
+        console.error('[ReceiptExtractor] parse-receipt error detail:', data);
+        setError(data?.error || 'Parsing failed.');
       } else if (Array.isArray(data.transactions) && data.transactions.length) {
-        setTransactions(data.transactions)
-        setInfo(`Detected ${data.transactions.length} transaction(s).`)
-        setProviderUsed(data.provider || '')
+        setTransactions(data.transactions);
+        setInfo(`Detected ${data.transactions.length} transaction(s).`);
+        setProviderUsed(data.provider || '');
       } else {
-        setError('No transactions detected.')
+        setError('No transactions detected.');
       }
-    } catch {
-      setError('Network error during parsing.')
+    } catch (e) {
+      console.error('[ReceiptExtractor] parse-receipt network/uncaught error:', e);
+      setError('Network error during parsing.');
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
+
+  const DEFAULT_CATEGORY = process.env.NEXT_PUBLIC_FALLBACK_CATEGORY || 'Other';
+function guessCategory(raw = '') {
+  const r = raw.toLowerCase();
+  if (/groc|super|mart|food/.test(r)) return 'Food';
+  if (/uber|lyft|ride|taxi|transport/.test(r)) return 'Transportation';
+  if (/coffee|cafe|restaurant|dine|meal|food/.test(r)) return 'Entertainment';
+  if (/rent|lease/.test(r)) return 'Other'; 
+  if (/subscr|netflix|prime|spotify|service/.test(r)) return 'Entertainment';
+  if (/util|electric|water|gas|power|bill/.test(r)) return 'Utilities';
+  return DEFAULT_CATEGORY; 
+}
+
+
+
+  const TRANSACTION_ENDPOINT =
+    process.env.NEXT_PUBLIC_TRANSACTION_ENDPOINT ||
+    '/api/transactions'; 
 
   async function saveAll() {
-    if (!transactions.length) return
-    setSaving(true)
-    setError('')
-    setInfo('')
+    if (!transactions.length) return;
+    setSaving(true);
+    setError('');
+    setInfo('');
+    setDebugLines([]);
     try {
-      const date = new Date().toISOString().slice(0, 10)
-      for (let i = 0; i < transactions.length; i++) {
-        const t = transactions[i]
-        const res = await fetch('/api/transactions', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            date,
-            amount: t.amount,
-            description: t.raw ? `Receipt: ${t.raw.slice(0, 40)}` : 'Receipt import',
-            category: '',
-            merchant: ''
-          })
-        })
-        const rjson = await res.json().catch(() => ({}))
-        if (!res.ok) throw new Error(rjson?.error || `Failed to save item #${i + 1}`)
+      const date = new Date().toISOString().slice(0, 10);
+      const successes = [];
+      const failures = [];
+
+      for (const [idx, t] of transactions.entries()) {
+        const amountNum = Number(t.amount);
+        if (!Number.isFinite(amountNum)) {
+          failures.push({ index: idx, error: 'Amount not numeric' });
+          continue;
+        }
+        
+
+        const rawSnippet = typeof t.raw === 'string' ? t.raw : '';
+        const description = (`Receipt: ${rawSnippet}` || 'Receipt import').slice(0, 100);
+        const category = guessCategory(rawSnippet);
+
+        const payload = { date, amount: amountNum, description, category };
+
+        let respJson = null;
+        let status = 0;
+        try {
+          const res = await fetch(TRANSACTION_ENDPOINT, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          status = res.status;
+          respJson = await res.json().catch(() => ({}));
+          console.log('[ReceiptExtractor] POST /api/transactions row', idx + 1, 'status:', res.status, 'response:', respJson);
+          if (!res.ok) {
+            console.error('[ReceiptExtractor] transaction save error row', idx + 1, respJson);
+            throw new Error(respJson?.error || `Failed to save item #${idx + 1}`);
+          }
+        } catch (innerErr) {
+          console.error('[ReceiptExtractor] network/uncaught save error row', idx + 1, innerErr);
+          throw innerErr;
+        }
+
+        setDebugLines(d => [
+          ...d,
+          {
+            idx,
+            request: payload,
+            status,
+            response: respJson
+          }
+        ]);
       }
-      setInfo('All transactions saved successfully.')
-      setTransactions([])
-      setFile(null)
+
+      if (failures.length && successes.length) {
+        setError(`Saved ${successes.length}, failed ${failures.length}. Open debug for details.`);
+      } else if (failures.length) {
+        setError(`All ${failures.length} saves failed. Check endpoint path & schema.`);
+      } else {
+        setInfo(`All ${successes.length} transactions saved successfully.`);
+        setTransactions([]);
+        setFile(null);
+      }
     } catch (err) {
-      setError(err.message || 'Save failed.')
+      setError(err.message || 'Save failed (unexpected).');
     } finally {
-      setSaving(false)
+      setSaving(false);
     }
   }
 
@@ -144,11 +208,46 @@ const ReceiptTransactionsExtractor = () => {
           </div>
         </div>
       )}
+      <p style={{ fontSize: '0.65rem', color: '#777', marginTop: '0.25rem' }}>
+        Using endpoint: <code>{TRANSACTION_ENDPOINT}</code>{' '}
+        <button
+          type="button"
+          onClick={() => setDebugOpen(o => !o)}
+          style={{ marginLeft: '0.5rem' }}
+        >
+          {debugOpen ? 'Hide Debug' : 'Show Debug'}
+        </button>
+      </p>
+      {debugOpen && debugLines.length > 0 && (
+        <div
+          style={{
+            marginTop: '1rem',
+            background: '#1e1e1e',
+            color: '#d1d1d1',
+            padding: '0.75rem',
+            borderRadius: 6,
+            fontSize: '0.7rem',
+            maxHeight: 220,
+            overflow: 'auto'
+          }}
+        >
+          <strong>Debug Log</strong>
+          <pre style={{ whiteSpace: 'pre-wrap' }}>
+{JSON.stringify(debugLines, null, 2)}
+          </pre>
+          <p style={{ margin: 0 }}>
+            If requests fail with 404: verify the server route path matches {TRANSACTION_ENDPOINT}. If 400: check category
+            enum or date/amount validation.
+          </p>
+        </div>
+      )}
+      {/* TODO: Add per-row editing & batch insert endpoint */}
     </div>
-  )
-}
+  );
+};
 
-const th = { textAlign: 'left', borderBottom: '1px solid #ccc', padding: '4px' }
-const td = { borderBottom: '1px solid #eee', padding: '4px' }
+const th = { textAlign: 'left', borderBottom: '1px solid #ccc', padding: '4px' };
+const td = { borderBottom: '1px solid #eee', padding: '4px' };
 
-export default ReceiptTransactionsExtractor
+export default ReceiptTransactionsExtractor;
+// GEMINI INTEGRATION COMPLETE

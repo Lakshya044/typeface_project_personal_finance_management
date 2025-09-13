@@ -1,12 +1,11 @@
 import { NextResponse } from 'next/server';
 
-export const runtime = 'nodejs';
+export const runtime = 'nodejs'; 
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 const SUPPORTED_MIME = /^(application\/pdf|image\/)/;
 const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-1.5-flash';
 const PROVIDER = (process.env.RECEIPT_PARSER_PROVIDER || 'gemini').toLowerCase(); 
-
 
 export async function POST(request) {
   try {
@@ -30,7 +29,6 @@ export async function POST(request) {
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
 
-   
     let extractedText = '';
     if (file.type === 'application/pdf') {
       try {
@@ -51,12 +49,12 @@ export async function POST(request) {
     if (PROVIDER === 'gemini') {
       transactions = await runGeminiExtraction({ buffer, mimeType: file.type, extractedText });
       if (!transactions.length) {
-        
+       
         transactions = heuristicExtract(buffer, file.type, extractedText);
         providerUsed = transactions.length ? 'fallback-free' : 'gemini';
       }
     } else {
-     
+      
       transactions = heuristicExtract(buffer, file.type, extractedText);
     }
 
@@ -76,6 +74,7 @@ export async function POST(request) {
     return NextResponse.json({ error: 'Internal server error.' }, { status: 500 });
   }
 }
+
 
 async function runGeminiExtraction({ buffer, mimeType, extractedText }) {
   if (!process.env.GOOGLE_GEMINI_API_KEY) {
@@ -131,6 +130,7 @@ ${extractedText ? `Receipt text (may be truncated): """${extractedText}"""` : ''
 `.trim();
 }
 
+
 function heuristicExtract(buffer, mimeType, extractedText) {
   return parseHeuristicText(extractedText || '');
 }
@@ -154,6 +154,7 @@ function parseHeuristicText(text) {
   for (const raw of lines) {
     if (!raw) continue;
     let line = raw;
+   
     const totalCandidate = TOTAL_HINT.test(line);
 
     if (IGNORE.test(line) && !totalCandidate) continue;
@@ -181,6 +182,7 @@ function parseHeuristicText(text) {
     }
   }
 
+ 
   const map = new Map();
   for (const it of items) {
     const key = it.raw.toLowerCase() + '|' + it.amount;
@@ -196,6 +198,7 @@ function parseHeuristicText(text) {
       return { amount: Number(signed.toFixed(2)), type, raw: u.raw.slice(0, 160) };
     });
   } else if (probableTotal != null) {
+    
     results = [{
       amount: Number((-Math.abs(probableTotal)).toFixed(2)),
       type: 'expense',
@@ -210,6 +213,7 @@ function parseAmount(str) {
   const num = Number(str.replace(/[^0-9.\-]/g, ''));
   return Number.isFinite(num) ? num : null;
 }
+
 
 function extractJsonArray(text) {
   if (!text) return [];
