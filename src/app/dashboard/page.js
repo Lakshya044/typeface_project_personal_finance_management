@@ -47,7 +47,7 @@ export default function Dashboard() {
 
         <div>
           <h2 className="text-xl font-semibold mb-4">Recent Transactions</h2>
-          <TransactionTable limit={5} />
+          <TransactionTable limit={20} />
         </div>
       </div>
     </div>
