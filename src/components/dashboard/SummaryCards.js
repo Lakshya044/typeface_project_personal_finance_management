@@ -1,5 +1,5 @@
 "use client";
-import useTransactions from "@/hooks/useTransactions";
+import {useTransactions} from "@/hooks/useTransactions";
 import { Card, CardContent } from "@/components/ui/card";
 
 export default function SummaryCards() {

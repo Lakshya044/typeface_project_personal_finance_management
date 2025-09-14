@@ -10,7 +10,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import useBudgets from "@/hooks/useBudgets";
-import useTransactions from "@/hooks/useTransactions";
+import {useTransactions} from "@/hooks/useTransactions";
 import { CATEGORIES } from "@/lib/categories";
 import { currentMonthId } from "@/lib/budget";
 

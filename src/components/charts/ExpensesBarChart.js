@@ -8,7 +8,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import useTransactions from "@/hooks/useTransactions";
+import {useTransactions} from "@/hooks/useTransactions";
 
 export default function ExpensesBarChart() {
   const { transactions } = useTransactions();

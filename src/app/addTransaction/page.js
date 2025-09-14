@@ -11,16 +11,23 @@ export default function Home() {
         <h2 className="text-xl font-semibold">Add Transaction</h2>
         <TransactionForm />
 
-        <h2 className="text-xl font-semibold">Extract Transactions from Receipt</h2>
-        <ReceiptTransactionsExtractor />
+        
 
         <h2 className="text-xl font-semibold">Transactions</h2>
         <TransactionTable />
+
+
+       
       </div>
 
       {/* Right column: chart */}
       <div>
-        <h2 className="text-xl font-semibold mb-4">Monthly Expenses</h2>
+        
+
+        <h2 className="text-xl font-semibold">Extract Transactions from Receipt</h2>
+         <ReceiptTransactionsExtractor />
+
+         <h2 className="text-xl font-semibold mb-4">Monthly Expenses</h2>
         <ExpensesBarChart />
       </div>
     </div>

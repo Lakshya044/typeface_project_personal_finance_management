@@ -1,7 +1,7 @@
 "use client";
 import { Card, CardContent } from "@/components/ui/card";
 import useBudgets from "@/hooks/useBudgets";
-import useTransactions from "@/hooks/useTransactions";
+import {useTransactions} from "@/hooks/useTransactions";
 import { currentMonthId } from "@/lib/budget";
 
 export default function InsightsCard({ month = currentMonthId() }) {
