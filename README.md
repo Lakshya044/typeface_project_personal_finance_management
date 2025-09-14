@@ -2,6 +2,12 @@
 
 A comprehensive full-stack web application designed to help users track, manage, and understand their financial activities. Users can log income and expenses, categorize transactions, view detailed summaries of their spending habits, and automatically extract transaction data from uploaded receipts using AI.
 
+## 🌐 Live Application
+
+**[Try the Live Application](https://typeface-project-personal-finance-m-five.vercel.app/)**
+
+*Experience the full functionality of the Personal Finance Assistant directly in your browser.*
+
 ## 🛠️ Technology Stack
 
 - **Frontend**: [Next.js 15](https://nextjs.org) with React
