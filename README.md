@@ -8,6 +8,16 @@ A comprehensive full-stack web application designed to help users track, manage,
 
 *Experience the full functionality of the Personal Finance Assistant directly in your browser.*
 
+## 🎥 Demo Video
+
+Check out the full project demonstration:
+
+**[Watch Demo Video](https://drive.google.com/file/d/1RinSFm5T1ZekZt6lF6zTUAGrhksAsUzS/view?usp=sharing)**
+
+*The demo showcases all major features including transaction management, AI receipt processing, budget tracking, and analytics dashboard.*
+
+---
+
 ## 🛠️ Technology Stack
 
 - **Frontend**: [Next.js 15](https://nextjs.org) with React
@@ -308,15 +318,7 @@ The app is compatible with any platform supporting Next.js:
 5. Open a Pull Request
 
 
-## 🎥 Demo Video
 
-Check out the full project demonstration:
-
-**[Watch Demo Video](https://drive.google.com/file/d/1RinSFm5T1ZekZt6lF6zTUAGrhksAsUzS/view?usp=sharing)**
-
-*The demo showcases all major features including transaction management, AI receipt processing, budget tracking, and analytics dashboard.*
-
----
 
 Built with ❤️ using Next.js, Firebase, and MongoDB
 
