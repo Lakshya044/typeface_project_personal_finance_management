@@ -57,7 +57,7 @@ export default function BudgetComparisonChart({ month = currentMonthId() }) {
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-gray-800/60 backdrop-blur-md border border-gray-600/40 rounded-lg p-3 shadow-xl">
+        <div className="bg-gray-800/90 backdrop-blur-sm border border-gray-600/50 rounded-lg p-3 shadow-xl">
           <p className="text-white font-medium mb-2">{`${label}`}</p>
           {payload.map((entry) => (
             <p key={entry.dataKey} className="text-sm" style={{ color: entry.color }}>
@@ -91,10 +91,10 @@ export default function BudgetComparisonChart({ month = currentMonthId() }) {
       </div>
 
       {/* Chart Container */}
-      <div className="bg-gray-800/60 backdrop-blur-md border border-gray-700/40 rounded-lg p-4 shadow-xl">
+      <div className="bg-gray-800 border border-gray-700 rounded-lg p-4">
         <ResponsiveContainer width="100%" height={360}>
           <BarChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#374151" opacity={0.6} />
+            <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
             <XAxis 
               dataKey="category" 
               stroke="#9ca3af"
@@ -102,31 +102,15 @@ export default function BudgetComparisonChart({ month = currentMonthId() }) {
               angle={-45}
               textAnchor="end"
               height={80}
-              style={{ 
-                filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))',
-                backdropFilter: 'blur(8px)'
-              }}
             />
             <YAxis 
               stroke="#9ca3af"
               fontSize={12}
               tickFormatter={(value) => `₹${value}`}
-              style={{ 
-                filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))',
-                backdropFilter: 'blur(8px)'
-              }}
             />
             <Tooltip content={<CustomTooltip />} />
             <Legend 
-              wrapperStyle={{ 
-                color: '#d1d5db', 
-                fontSize: '14px',
-                filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))',
-                backdropFilter: 'blur(8px)',
-                background: 'rgba(31, 41, 55, 0.6)',
-                borderRadius: '8px',
-                padding: '8px'
-              }}
+              wrapperStyle={{ color: '#d1d5db', fontSize: '14px' }}
             />
             <Bar 
               dataKey="Budget" 
@@ -146,19 +130,19 @@ export default function BudgetComparisonChart({ month = currentMonthId() }) {
 
       {/* Summary Stats */}
       <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-gray-800/60 backdrop-blur-md border border-gray-700/40 rounded-lg p-4 text-center shadow-xl">
+        <div className="bg-gray-800 border border-gray-700 rounded-lg p-4 text-center">
           <div className="text-sm text-gray-400 mb-1">Total Budget</div>
           <div className="text-lg font-semibold text-blue-400">
             ₹{data.reduce((sum, item) => sum + item.Budget, 0).toFixed(2)}
           </div>
         </div>
-        <div className="bg-gray-800/60 backdrop-blur-md border border-gray-700/40 rounded-lg p-4 text-center shadow-xl">
+        <div className="bg-gray-800 border border-gray-700 rounded-lg p-4 text-center">
           <div className="text-sm text-gray-400 mb-1">Total Spent</div>
           <div className="text-lg font-semibold text-red-400">
             ₹{data.reduce((sum, item) => sum + item.Actual, 0).toFixed(2)}
           </div>
         </div>
-        <div className="bg-gray-800/60 backdrop-blur-md border border-gray-700/40 rounded-lg p-4 text-center shadow-xl">
+        <div className="bg-gray-800 border border-gray-700 rounded-lg p-4 text-center">
           <div className="text-sm text-gray-400 mb-1">Remaining</div>
           <div className={`text-lg font-semibold ${
             data.reduce((sum, item) => sum + item.Budget - item.Actual, 0) >= 0 
