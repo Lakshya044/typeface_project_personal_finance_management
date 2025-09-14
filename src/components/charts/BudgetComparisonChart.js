@@ -16,13 +16,13 @@ import { currentMonthId } from "@/lib/budget";
 
 export default function BudgetComparisonChart({ month = currentMonthId() }) {
   const { budgets } = useBudgets(month);
-  const { transactions } = useTransactions();           // whole list
+  const { transactions } = useTransactions();          
 
-  // Build { category → budgetAmount }
+  
   const budgetMap = {};
   budgets.forEach((b) => (budgetMap[b.category] = b.amount));
 
-  // Build { category → actualExpense }
+ 
   const actualMap = {};
   transactions
     .filter((t) => t.date.startsWith(month) && t.amount < 0)
@@ -30,12 +30,12 @@ export default function BudgetComparisonChart({ month = currentMonthId() }) {
       actualMap[t.category] = (actualMap[t.category] || 0) + Math.abs(t.amount);
     });
 
-  // Merge into recharts data array
+
   const data = CATEGORIES.map((cat) => ({
     category: cat,
     Budget: budgetMap[cat] || 0,
     Actual: actualMap[cat] || 0,
-  })).filter((d) => d.Budget || d.Actual); // hide empty rows
+  })).filter((d) => d.Budget || d.Actual); 
 
   if (!data.length) return <p>No data for {month}.</p>;
 

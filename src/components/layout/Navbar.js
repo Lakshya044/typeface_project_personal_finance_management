@@ -12,8 +12,9 @@ export default function Navbar() {
   return (
     <header className="border-b">
       <nav className="container mx-auto flex items-center gap-6 p-4">
-        <Link href="/">Transactions</Link>
-        <Link href="/dashboard">Dashboard</Link>
+         <Link href="/dashboard">Dashboard</Link>
+        <Link href="/addTransaction">Add Transaction</Link>
+       
 
         
         <div className="ml-auto">
