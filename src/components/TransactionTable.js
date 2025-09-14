@@ -166,7 +166,7 @@ export default function TransactionTable({ limit = 500 }) {
             <tr key={t._id} className="border-b border-gray-700 hover:bg-gray-750 transition-colors">
               <td className="p-2 text-gray-300 font-mono">{t.date}</td>
               <td className={`p-2 font-mono font-semibold ${t.amount < 0 ? 'text-red-400' : 'text-green-400'}`}>
-                {t.amount < 0 ? '-' : '+'}₹{Math.abs(t.amount).toFixed(2)}
+                ₹{Math.abs(t.amount).toFixed(2)}
               </td>
               <td className="p-2">
                 <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-900 text-blue-300 border border-blue-800">

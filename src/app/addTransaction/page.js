@@ -8,7 +8,7 @@ export default function Home() {
     <div className="min-h-screen bg-gray-900">
       {/* Header */}
       <div className="bg-gray-800 border-b border-gray-700 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="max-w-full mx-auto px-6 sm:px-8 lg:px-12 py-8">
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold text-white">
@@ -23,13 +23,13 @@ export default function Home() {
       </div>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="space-y-8">
+      <main className="max-w-full mx-auto px-6 sm:px-8 lg:px-12 py-12">
+        <div className="space-y-12">
           {/* Top Row - Add Transaction and Monthly Expenses */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
             {/* Add Transaction Form */}
             <div className="bg-gray-800 border border-gray-700 rounded-xl shadow-sm">
-              <div className="px-6 py-4 border-b border-gray-700">
+              <div className="px-8 py-6 border-b border-gray-700">
                 <div className="flex items-center space-x-3">
                   <div className="w-8 h-8 bg-blue-900 rounded-lg flex items-center justify-center">
                     <svg
@@ -56,14 +56,14 @@ export default function Home() {
                   </div>
                 </div>
               </div>
-              <div className="p-6 min-h-[500px] flex flex-col">
+              <div className="p-8 min-h-[500px] flex flex-col">
                 <TransactionForm />
               </div>
             </div>
 
             {/* Monthly Expenses Chart */}
             <div className="bg-gray-800 border border-gray-700 rounded-xl shadow-sm">
-              <div className="px-6 py-4 border-b border-gray-700">
+              <div className="px-8 py-6 border-b border-gray-700">
                 <div className="flex items-center space-x-3">
                   <div className="w-8 h-8 bg-purple-900 rounded-lg flex items-center justify-center">
                     <svg
@@ -90,17 +90,17 @@ export default function Home() {
                   </div>
                 </div>
               </div>
-              <div className="p-6 min-h-[500px]">
+              <div className="p-8 min-h-[500px]">
                 <ExpensesBarChart />
               </div>
             </div>
           </div>
 
           {/* Bottom Row - Receipt Scanner and Transaction History */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
             {/* Receipt Scanner */}
             <div className="bg-gray-800 border border-gray-700 rounded-xl shadow-sm">
-              <div className="px-6 py-4 border-b border-gray-700">
+              <div className="px-8 py-6 border-b border-gray-700">
                 <div className="flex items-center space-x-3">
                   <div className="w-8 h-8 bg-green-900 rounded-lg flex items-center justify-center">
                     <svg
@@ -127,14 +127,14 @@ export default function Home() {
                   </div>
                 </div>
               </div>
-              <div className="p-6 min-h-[500px] flex flex-col">
+              <div className="p-8 min-h-[500px] flex flex-col">
                 <ReceiptTransactionsExtractor />
               </div>
             </div>
 
             {/* Transaction History */}
             <div className="bg-gray-800 border border-gray-700 rounded-xl shadow-sm">
-              <div className="px-6 py-4 border-b border-gray-700">
+              <div className="px-8 py-6 border-b border-gray-700">
                 <div className="flex items-center space-x-3">
                   <div className="w-8 h-8 bg-blue-900 rounded-lg flex items-center justify-center">
                     <svg
@@ -161,7 +161,7 @@ export default function Home() {
                   </div>
                 </div>
               </div>
-              <div className="p-6 min-h-[500px]">
+              <div className="p-8 min-h-[500px]">
                 <TransactionTable />
               </div>
             </div>
