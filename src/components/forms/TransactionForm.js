@@ -107,7 +107,7 @@ export default function TransactionForm({ preset, onClose }) {
 
       <Button 
         disabled={loading} 
-        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200"
+        className="w-full bg-blue-600 hover:bg-blue-700 hover:scale-105 hover:shadow-lg hover:shadow-blue-500/25 text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 transform"
       >
         {loading ? (
           <div className="flex items-center justify-center">

@@ -20,9 +20,9 @@ export default function AddBudgetDialog({ defaultMonth }) {
       <DialogTrigger asChild>
         <Button 
           variant="outline" 
-          className="bg-blue-600 hover:bg-blue-700 text-white border-blue-600 hover:border-blue-700"
+          className="bg-blue-600 hover:bg-blue-700 hover:scale-105 hover:shadow-lg hover:shadow-blue-500/25 text-white border-blue-600 hover:border-blue-700 transition-all duration-200 transform"
         >
-          <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-4 h-4 mr-2 transition-transform duration-200 hover:rotate-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
           </svg>
           Set Budget

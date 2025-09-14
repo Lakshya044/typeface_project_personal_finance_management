@@ -57,7 +57,7 @@ export default function BudgetComparisonChart({ month = currentMonthId() }) {
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-gray-800 border border-gray-600 rounded-lg p-3 shadow-lg">
+        <div className="bg-gray-800/90 backdrop-blur-sm border border-gray-600/50 rounded-lg p-3 shadow-xl">
           <p className="text-white font-medium mb-2">{`${label}`}</p>
           {payload.map((entry) => (
             <p key={entry.dataKey} className="text-sm" style={{ color: entry.color }}>

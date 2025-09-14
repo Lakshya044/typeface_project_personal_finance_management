@@ -116,7 +116,7 @@ export default function TransactionTable({ limit = 500 }) {
           />
         </div>
         <div className="flex gap-2">
-          <Button type="submit" variant="default" disabled={loading} className="bg-blue-600 hover:bg-blue-700 text-white">
+          <Button type="submit" variant="default" disabled={loading} className="bg-blue-600 hover:bg-blue-700 hover:scale-105 hover:shadow-lg hover:shadow-blue-500/25 text-white transition-all duration-200 transform">
             Apply Range
           </Button>
           <Button
@@ -124,7 +124,7 @@ export default function TransactionTable({ limit = 500 }) {
             variant="secondary"
             onClick={clearRange}
             disabled={loading && !fromDate && !toDate}
-            className="bg-gray-600 hover:bg-gray-500 text-white border-gray-600"
+            className="bg-gray-600 hover:bg-gray-500 hover:scale-105 hover:shadow-lg hover:shadow-gray-500/25 text-white border-gray-600 transition-all duration-200 transform"
           >
             Clear
           </Button>
@@ -175,7 +175,7 @@ export default function TransactionTable({ limit = 500 }) {
               </td>
               <td className="p-2 text-gray-300">{t.description}</td>
               <td className="p-2">
-                <Button variant="ghost" onClick={() => handleDelete(t._id)} className="text-red-400 hover:text-red-300 hover:bg-red-900/20">
+                <Button variant="ghost" onClick={() => handleDelete(t._id)} className="text-red-400 hover:text-red-300 hover:bg-red-900/20 hover:scale-110 hover:shadow-md transition-all duration-200 transform">
                   🗑️
                 </Button>
               </td>
@@ -200,7 +200,7 @@ export default function TransactionTable({ limit = 500 }) {
           variant="secondary"
           onClick={goPrev}
           disabled={currentPage === 1 || loading}
-          className="bg-gray-600 hover:bg-gray-500 text-white border-gray-600"
+          className="bg-gray-600 hover:bg-gray-500 hover:scale-105 hover:shadow-lg hover:shadow-gray-500/25 text-white border-gray-600 transition-all duration-200 transform"
         >
           Prev
         </Button>
@@ -212,7 +212,7 @@ export default function TransactionTable({ limit = 500 }) {
           variant="secondary"
           onClick={goNext}
           disabled={currentPage === totalPages || loading}
-          className="bg-gray-600 hover:bg-gray-500 text-white border-gray-600"
+          className="bg-gray-600 hover:bg-gray-500 hover:scale-105 hover:shadow-lg hover:shadow-gray-500/25 text-white border-gray-600 transition-all duration-200 transform"
         >
           Next
         </Button>

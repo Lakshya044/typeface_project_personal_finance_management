@@ -54,7 +54,7 @@ export default function ExpensesBarChart() {
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-gray-800 border border-gray-600 rounded-lg p-3 shadow-lg">
+        <div className="bg-gray-800/90 backdrop-blur-sm border border-gray-600/50 rounded-lg p-3 shadow-xl">
           <p className="text-white font-medium mb-1">{label}</p>
           <p className="text-sm text-red-400">
             Total Expenses: ₹{payload[0].value.toFixed(2)}
