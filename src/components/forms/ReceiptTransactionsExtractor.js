@@ -91,7 +91,7 @@ function guessCategory(raw = '') {
     setInfo('');
     setDebugLines([]);
     try {
-      const date = new Date().toISOString().slice(0, 10);
+      const today = new Date().toISOString().slice(0, 10); // reference fallback date
       const successes = [];
       const failures = [];
 
@@ -101,13 +101,18 @@ function guessCategory(raw = '') {
           failures.push({ index: idx, error: 'Amount not numeric' });
           continue;
         }
-        
+
+        // NEW: prefer extracted date if valid ISO (YYYY-MM-DD), else fallback to today
+        let transactionDate =
+          typeof t.date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(t.date)
+            ? t.date
+            : today;
 
         const rawSnippet = typeof t.raw === 'string' ? t.raw : '';
         const description = (`Receipt: ${rawSnippet}` || 'Receipt import').slice(0, 100);
         const category = guessCategory(rawSnippet);
 
-        const payload = { date, amount: amountNum, description, category };
+        const payload = { date: transactionDate, amount: amountNum, description, category };
 
         let respJson = null;
         let status = 0;
@@ -121,18 +126,20 @@ function guessCategory(raw = '') {
           respJson = await res.json().catch(() => ({}));
           console.log('[ReceiptExtractor] POST /api/transactions row', idx + 1, 'status:', res.status, 'response:', respJson);
           if (!res.ok) {
-            console.error('[ReceiptExtractor] transaction save error row', idx + 1, respJson);
             throw new Error(respJson?.error || `Failed to save item #${idx + 1}`);
+          } else {
+            successes.push(idx);
           }
         } catch (innerErr) {
-          console.error('[ReceiptExtractor] network/uncaught save error row', idx + 1, innerErr);
-          throw innerErr;
+          failures.push({ index: idx, error: innerErr.message });
         }
 
         setDebugLines(d => [
           ...d,
           {
             idx,
+            chosenDate: transactionDate,
+            originalDate: t.date ?? null,
             request: payload,
             status,
             response: respJson
@@ -143,11 +150,13 @@ function guessCategory(raw = '') {
       if (failures.length && successes.length) {
         setError(`Saved ${successes.length}, failed ${failures.length}. Open debug for details.`);
       } else if (failures.length) {
-        setError(`All ${failures.length} saves failed. Check endpoint path & schema.`);
+        setError(`All ${failures.length} saves failed. Check endpoint & data.`);
       } else {
         setInfo(`All ${successes.length} transactions saved successfully.`);
         setTransactions([]);
         setFile(null);
+        // optional: notify rest of app
+        try { window.dispatchEvent(new Event('transactions-changed')); } catch {}
       }
     } catch (err) {
       setError(err.message || 'Save failed (unexpected).');
@@ -185,6 +194,7 @@ function guessCategory(raw = '') {
             <thead>
               <tr>
                 <th style={th}>#</th>
+                <th style={th}>Date{/* NEW */}</th>
                 <th style={th}>Amount</th>
                 <th style={th}>Type</th>
                 <th style={th}>Raw Snippet</th>
@@ -194,6 +204,7 @@ function guessCategory(raw = '') {
               {transactions.map((t, i) => (
                 <tr key={i} style={{ background: '#fafafa' }}>
                   <td style={td}>{i + 1}</td>
+                  <td style={td}>{(typeof t.date === 'string' && t.date) || '—'}</td> {/* NEW */}
                   <td style={{ ...td, color: t.amount < 0 ? '#b00' : '#060' }}>{t.amount}</td>
                   <td style={td}>{t.type}</td>
                   <td style={td}>{t.raw || ''}</td>
@@ -241,7 +252,6 @@ function guessCategory(raw = '') {
           </p>
         </div>
       )}
-      {/* TODO: Add per-row editing & batch insert endpoint */}
     </div>
   );
 };
@@ -250,4 +260,3 @@ const th = { textAlign: 'left', borderBottom: '1px solid #ccc', padding: '4px' }
 const td = { borderBottom: '1px solid #eee', padding: '4px' };
 
 export default ReceiptTransactionsExtractor;
-// GEMINI INTEGRATION COMPLETE
