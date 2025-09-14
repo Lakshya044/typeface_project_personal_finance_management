@@ -1,154 +1,254 @@
 "use client";
-import { useState } from "react";
-import useTransactions from "@/hooks/useTransactions";
-import { Button } from "@/components/ui/button";
 
-export default function TransactionTable({ limit }) {
-  const { transactions, isLoading, mutate } = useTransactions();
-  const [error, setError] = useState(null);
+import React, { useState, useEffect } from "react";
+import { useTransactions } from "@/hooks/useTransactions";
+
+export function TransactionTable({
+  pageSize = 20,
+  initialStartDate = "",
+  initialEndDate = "",
+}) {
+  const {
+    transactions,
+    currentPage,
+    totalPages,
+    totalCount,
+    loading,
+    error,
+    goNext,
+    goPrev,
+    goToPage,
+    setDateRange,
+    startDate,
+    endDate,
+  } = useTransactions({
+    pageSize,
+    startDate: initialStartDate,
+    endDate: initialEndDate,
+  });
+
+  const [draftStartDate, setDraftStartDate] = useState(startDate);
+  const [draftEndDate, setDraftEndDate] = useState(endDate);
 
   
-  const [fromDate, setFromDate] = useState("");
-  const [toDate, setToDate] = useState("");
-  const [rangeError, setRangeError] = useState("");
-  const rangeActive = fromDate && toDate;
+  // useEffect(() => {
+   
+  // }, [
+  //   currentPage,
+  //   totalPages,
+  //   totalCount,
+  //   loading,
+  //   error,
+  //   startDate,
+  //   endDate,
+  //   draftStartDate,
+  //   draftEndDate,
+  //   transactions,
+  // ]);
 
-  function applyRange(e) {
-    e.preventDefault();
-    setRangeError("");
-    if (!fromDate || !toDate) {
-      setRangeError("Both start and end dates required.");
-      return;
+ 
+
+  const renderBody = () => {
+    
+    if (loading) {
+      return (
+        <tr>
+          <td colSpan={5} style={{ textAlign: "center" }}>
+            Loading...
+          </td>
+        </tr>
+      );
     }
-    if (new Date(fromDate) > new Date(toDate)) {
-      setRangeError("Start date must be before end date.");
-      return;
+    if (error) {
+      return (
+        <tr>
+          <td colSpan={5} style={{ color: "red", textAlign: "center" }}>
+            {error}
+          </td>
+        </tr>
+      );
     }
-  }
-
-  function clearRange() {
-    setFromDate("");
-    setToDate("");
-    setRangeError("");
-  }
-
-  if (isLoading) return <p>Loading…</p>;
-  if (!transactions.length) return <p>No transactions yet.</p>;
-
-  let rows = [...transactions].sort(
-    (a, b) => new Date(b.date) - new Date(a.date)
-  );
-
-  // Apply date range filter if active
-  if (rangeActive) {
-    rows = rows.filter((t) => {
-      const d = new Date(t.date);
-      return d >= new Date(fromDate) && d <= new Date(toDate);
+    if (!transactions.length) {
+      return (
+        <tr>
+          <td colSpan={5} style={{ textAlign: "center" }}>
+            No transactions found
+          </td>
+        </tr>
+      );
+    }
+    const baseIndex = (currentPage - 1) * pageSize;
+    return transactions.map((t, idx) => {
+      let dateValue = t.date;
+      try {
+        if (dateValue) {
+          const d = new Date(dateValue);
+          if (!isNaN(d.getTime())) {
+            dateValue = d.toLocaleDateString();
+          }
+        }
+      } catch {
+       
+      }
+      if (idx < 5) {
+       
+      }
+      return (
+        <tr key={t._id || idx}>
+          <td>{baseIndex + idx + 1}</td>
+          <td>{dateValue || "-"}</td>
+          <td>{t.amount != null ? t.amount : "-"}</td>
+          <td>{t.category || "-"}</td>
+          <td>{t.description || "-"}</td>
+        </tr>
+      );
     });
-  } else {
-    // No range -> show recent 20 (overrides incoming limit requirement)
-    rows = rows.slice(0, 20);
-  }
-
-  async function handleDelete(id) {
-    const previous = transactions;
-    mutate(transactions.filter((t) => (t._id === id ? false : true)), false);
-    try {
-      const res = await fetch(`/api/transactions/${id}`, { method: "DELETE" });
-      if (!res.ok) throw new Error("Delete failed");
-      await mutate();
-    } catch (err) {
-      setError(err.message);
-      mutate(previous, false);
-    }
-  }
+  };
 
   return (
-    <>
-    
+    <div style={{ display: "grid", gap: "1rem" }}>
       <form
-        onSubmit={applyRange}
-        className="mb-4 flex flex-col gap-2 md:flex-row md:items-end"
+        style={{
+          display: "flex",
+          gap: "0.75rem",
+          flexWrap: "wrap",
+          alignItems: "flex-end",
+        }}
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (draftStartDate && draftEndDate && draftStartDate > draftEndDate) {
+            console.warn("[ApplyFilters] invalid range", {
+              draftStartDate,
+              draftEndDate,
+            });
+            alert("Start date cannot be after end date");
+            return;
+          }
+          setDateRange(draftStartDate, draftEndDate);
+        }}
       >
-        <div className="flex flex-col">
-          <label className="text-sm font-medium mb-1">From</label>
+        <div style={{ display: "flex", flexDirection: "column" }}>
+          <label htmlFor="startDate">Start Date</label>
           <input
             type="date"
-            value={fromDate}
-            onChange={(e) => setFromDate(e.target.value)}
-            className="border px-2 py-1 rounded"
+            id="startDate"
+            name="startDate"
+            value={draftStartDate}
+            onChange={(e) => {
+              setDraftStartDate(e.target.value);
+              console.log("[Draft startDate changed]", e.target.value);
+            }}
           />
         </div>
-        <div className="flex flex-col">
-          <label className="text-sm font-medium mb-1">To</label>
+        <div style={{ display: "flex", flexDirection: "column" }}>
+          <label htmlFor="endDate">End Date</label>
           <input
             type="date"
-            value={toDate}
-            onChange={(e) => setToDate(e.target.value)}
-            className="border px-2 py-1 rounded"
+            id="endDate"
+            name="endDate"
+            value={draftEndDate}
+            onChange={(e) => {
+              setDraftEndDate(e.target.value);
+              console.log("[Draft endDate changed]", e.target.value);
+            }}
           />
         </div>
-        <div className="flex gap-2">
-          <Button type="submit" variant="default">
-            Apply Range
-          </Button>
-          <Button
-            type="button"
-            variant="secondary"
-            onClick={clearRange}
-            disabled={!rangeActive && !fromDate && !toDate}
-          >
-            Clear
-          </Button>
-        </div>
+        <button type="submit" disabled={loading}>
+          Apply Filters
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            console.log("[ClearDates clicked]");
+            setDraftStartDate("");
+            setDraftEndDate("");
+            setDateRange("", "");
+          }}
+          disabled={loading && !error}
+        >
+          Clear Dates
+        </button>
+        <small style={{ opacity: 0.7 }}>
+          (Apply to fetch. Prevents API calls while typing.)
+        </small>
       </form>
-      {rangeError && (
-        <p className="text-xs text-red-600 mb-2">{rangeError}</p>
-      )}
-      {rangeActive && (
-        <p className="text-xs text-gray-600 mb-2">
-          Showing transactions between {fromDate} and {toDate} ({rows.length} found)
-        </p>
-      )}
-      {!rangeActive && (
-        <p className="text-xs text-gray-600 mb-2">
-          Showing most recent 20 transactions
-        </p>
-      )}
 
-      {error && (
-        <p className="text-sm text-red-600 mb-2">
-          {error} – please refresh and try again.
-        </p>
-      )}
-
-      <table className="w-full border-collapse">
-        <thead>
-          <tr className="text-left border-b">
-            <th className="p-2">Date</th>
-            <th className="p-2">Amount</th>
-            <th className="p-2">Category</th>
-            <th className="p-2">Description</th>
-            <th />
-          </tr>
-        </thead>
-
-        <tbody>
-          {rows.map((t) => (
-            <tr key={t._id} className="border-b">
-              <td className="p-2">{t.date}</td>
-              <td className="p-2">{t.amount}</td>
-              <td className="p-2">{t.category}</td>
-              <td className="p-2">{t.description}</td>
-              <td className="p-2">
-                <Button variant="ghost" onClick={() => handleDelete(t._id)}>
-                  🗑️
-                </Button>
-              </td>
+      <div style={{ overflowX: "auto" }}>
+        <table
+          style={{
+            width: "100%",
+            borderCollapse: "collapse",
+            minWidth: "650px",
+          }}
+        >
+          <thead>
+            <tr>
+              <th style={thStyle}></th>
+              <th style={thStyle}>Date</th>
+              <th style={thStyle}>Amount</th>
+              <th style={thStyle}>Category</th>
+              <th style={thStyle}>Description</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-    </>
+          </thead>
+          <tbody>{renderBody()}</tbody>
+        </table>
+      </div>
+
+      <div
+        style={{
+          display: "flex",
+          gap: "0.75rem",
+          alignItems: "center",
+          flexWrap: "wrap",
+        }}
+      >
+        <button
+          onClick={() => {
+            // console.log("[Pagination] Prev clicked");
+            goPrev();
+          }}
+          disabled={currentPage <= 1 || loading}
+        >
+          Prev
+        </button>
+        <span>
+          Page {currentPage} / {totalPages} ({totalCount} total)
+        </span>
+        <button
+          onClick={() => {
+            // console.log("[Pagination] Next clicked");
+            goNext();
+          }}
+          disabled={currentPage >= totalPages || loading}
+        >
+          Next
+        </button>
+        <label style={{ display: "flex", gap: "0.25rem", alignItems: "center" }}>
+          Go to:
+          <input
+            type="number"
+            min={1}
+            max={totalPages}
+            style={{ width: "4rem" }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                const val = parseInt(e.currentTarget.value, 10);
+                console.log("[Pagination] GoTo attempt", val);
+                if (!isNaN(val)) goToPage(val);
+              }
+            }}
+          />
+        </label>
+      </div>
+    </div>
   );
 }
+
+const thStyle = {
+  textAlign: "left",
+  borderBottom: "1px solid #ccc",
+  padding: "0.5rem",
+};
+
+export default TransactionTable;
