@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import useTransactions from "@/hooks/useTransactions";
 import { Button } from "@/components/ui/button";
 
@@ -7,7 +7,6 @@ export default function TransactionTable({ limit }) {
   const { transactions, isLoading, mutate } = useTransactions();
   const [error, setError] = useState(null);
 
-  
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [rangeError, setRangeError] = useState("");
@@ -33,14 +32,10 @@ export default function TransactionTable({ limit }) {
     setRangeError("");
   }
 
-  if (isLoading) return <p>Loading…</p>;
-  if (!transactions.length) return <p>No transactions yet.</p>;
-
   let rows = [...transactions].sort(
     (a, b) => new Date(b.date) - new Date(a.date)
   );
 
- 
   if (rangeActive) {
     rows = rows.filter((t) => {
       const d = new Date(t.date);
@@ -49,6 +44,22 @@ export default function TransactionTable({ limit }) {
   } else {
     rows = rows.slice(0, 20);
   }
+
+  // NEW: publish after render when rows change
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      window.__visibleTransactions = rows;
+      window.dispatchEvent(
+        new CustomEvent("visible-transactions-changed", { detail: rows })
+      );
+    } catch {
+     
+    }
+  }, [rows]);
+
+  if (isLoading) return <p>Loading…</p>;
+  if (!transactions.length) return <p>No transactions yet.</p>;
 
   async function handleDelete(id) {
     const previous = transactions;
