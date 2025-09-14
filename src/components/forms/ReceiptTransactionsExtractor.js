@@ -91,7 +91,7 @@ function guessCategory(raw = '') {
     setInfo('');
     setDebugLines([]);
     try {
-      const today = new Date().toISOString().slice(0, 10); // reference fallback date
+      const today = new Date().toISOString().slice(0, 10); 
       const successes = [];
       const failures = [];
 
@@ -102,7 +102,6 @@ function guessCategory(raw = '') {
           continue;
         }
 
-        // NEW: prefer extracted date if valid ISO (YYYY-MM-DD), else fallback to today
         let transactionDate =
           typeof t.date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(t.date)
             ? t.date
@@ -152,10 +151,20 @@ function guessCategory(raw = '') {
       } else if (failures.length) {
         setError(`All ${failures.length} saves failed. Check endpoint & data.`);
       } else {
-        setInfo(`All ${successes.length} transactions saved successfully.`);
+        setInfo(`All transactions saved successfully.`);
         setTransactions([]);
         setFile(null);
-        // optional: notify rest of app
+        
+        
+        resetPagination();
+        
+        
+        const fileInput = document.querySelector('input[type="file"]');
+        if (fileInput) {
+          fileInput.value = '';
+        }
+        
+       
         try { window.dispatchEvent(new Event('transactions-changed')); } catch {}
       }
     } catch (err) {
@@ -164,6 +173,37 @@ function guessCategory(raw = '') {
       setSaving(false);
     }
   }
+
+ 
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 7;
+
+  const totalPages = Math.ceil(transactions.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentTransactions = transactions.slice(startIndex, endIndex);
+
+  const goToNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const goToPrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const goToPage = (page) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
+
+  const resetPagination = () => {
+    setCurrentPage(1);
+  };
 
   return (
     <div className="bg-gray-800 border border-gray-700 rounded-lg p-6">
@@ -232,7 +272,12 @@ function guessCategory(raw = '') {
       {transactions.length > 0 && (
         <div className="mt-6 space-y-4">
           <div className="flex items-center justify-between">
-            <h4 className="text-base font-medium text-white">Extracted Transactions</h4>
+            <div>
+              <h4 className="text-base font-medium text-white">Extracted Transactions</h4>
+              <p className="text-sm text-gray-400">
+                Showing {startIndex + 1}-{Math.min(endIndex, transactions.length)} of {transactions.length} transactions
+              </p>
+            </div>
             <button 
               onClick={saveAll} 
               disabled={saving}
@@ -244,7 +289,7 @@ function guessCategory(raw = '') {
                   Saving...
                 </div>
               ) : (
-                'Save All Transactions'
+                `Save All ${transactions.length} Transactions`
               )}
             </button>
           </div>
@@ -253,7 +298,7 @@ function guessCategory(raw = '') {
             <table className="w-full text-sm">
               <thead className="bg-gray-700">
                 <tr>
-                  <th className="text-left p-3 text-gray-300 font-medium">#</th>
+                  <th className="text-left p-3 text-gray-300 font-medium"></th>
                   <th className="text-left p-3 text-gray-300 font-medium">Date</th>
                   <th className="text-left p-3 text-gray-300 font-medium">Amount</th>
                   <th className="text-left p-3 text-gray-300 font-medium">Type</th>
@@ -261,9 +306,9 @@ function guessCategory(raw = '') {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-600">
-                {transactions.map((t, i) => (
-                  <tr key={i} className="hover:bg-gray-700">
-                    <td className="p-3 text-gray-300">{i + 1}</td>
+                {currentTransactions.map((t, i) => (
+                  <tr key={startIndex + i} className="hover:bg-gray-700">
+                    <td className="p-3 text-gray-300">{startIndex + i + 1}</td>
                     <td className="p-3 text-gray-300 font-mono">{(typeof t.date === 'string' && t.date) || '—'}</td>
                     <td className={`p-3 font-mono font-semibold ${t.amount < 0 ? 'text-red-400' : 'text-green-400'}`}>
                       ₹{Math.abs(t.amount).toFixed(2)}
@@ -281,6 +326,52 @@ function guessCategory(raw = '') {
               </tbody>
             </table>
           </div>
+
+          {/* NEW: Pagination Controls */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between bg-gray-750 border border-gray-600 rounded-lg p-4">
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={goToPrevPage}
+                  disabled={currentPage === 1}
+                  className="px-3 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-500 hover:scale-105 hover:shadow-lg hover:shadow-gray-500/25 focus:ring-2 focus:ring-gray-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform"
+                >
+                  Previous
+                </button>
+                <button
+                  onClick={goToNextPage}
+                  disabled={currentPage === totalPages}
+                  className="px-3 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-500 hover:scale-105 hover:shadow-lg hover:shadow-gray-500/25 focus:ring-2 focus:ring-gray-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform"
+                >
+                  Next
+                </button>
+              </div>
+
+              <div className="flex items-center space-x-2 text-sm text-gray-300">
+                <span>Page</span>
+                <div className="flex space-x-1">
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                    <button
+                      key={page}
+                      onClick={() => goToPage(page)}
+                      className={`w-8 h-8 rounded-lg text-xs font-medium transition-all duration-200 transform hover:scale-105 ${
+                        page === currentPage
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-gray-600 text-gray-300 hover:bg-gray-500'
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  ))}
+                </div>
+                <span>of {totalPages}</span>
+              </div>
+
+              <div className="text-sm text-gray-400">
+                {transactions.length} total items
+              </div>
+            </div>
+          )}
         </div>
       )}
 
