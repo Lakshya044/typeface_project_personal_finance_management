@@ -29,11 +29,21 @@ export default function TransactionForm({ preset, onClose }) {
       ? `/api/transactions/${preset._id}`
       : "/api/transactions";
 
-    await fetch(url, { method, body: JSON.stringify(data) });
-    await mutate();          // refresh list
-    reset();                 // clear form
+    const res = await fetch(url, { method, body: JSON.stringify(data) });
+    if (!res.ok) {
+      setLoading(false);
+      return;
+    }
+    await mutate();          
+    reset();                
     setLoading(false);
     onClose?.();
+
+    try {
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new Event("transactions-changed")); 
+      }
+    } catch {}
   }
 
   return (

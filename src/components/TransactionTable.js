@@ -45,7 +45,7 @@ export default function TransactionTable({ limit }) {
     rows = rows.slice(0, 20);
   }
 
-  // NEW: publish after render when rows change
+  
   useEffect(() => {
     if (typeof window === "undefined") return;
     try {
@@ -57,6 +57,15 @@ export default function TransactionTable({ limit }) {
      
     }
   }, [rows]);
+
+  
+  useEffect(() => {
+    function refresh() {
+      mutate(); 
+    }
+    window.addEventListener("transactions-changed", refresh);
+    return () => window.removeEventListener("transactions-changed", refresh);
+  }, [mutate]);
 
   if (isLoading) return <p>Loading…</p>;
   if (!transactions.length) return <p>No transactions yet.</p>;
