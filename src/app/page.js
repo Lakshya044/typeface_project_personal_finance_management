@@ -1,7 +1,4 @@
-import TransactionForm from "@/components/forms/TransactionForm";
-import TransactionTable from "@/components/TransactionTable";
-import ExpensesBarChart from "@/components/charts/ExpensesBarChart";
-import ReceiptTransactionsExtractor from "@/components/forms/ReceiptTransactionsExtractor";
+
 import Link from "next/link";
 
 export default function Home() {

@@ -1,36 +1,67 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Personal Finance Assistant
+
+This is a full-stack application designed to help users track, manage, and understand their financial activities. Users can log income and expenses, categorize transactions, view summaries of their spending habits, and automatically extract expenses from uploaded receipts using AI.
+
+This project is built with [Next.js](https://nextjs.org), [Tailwind CSS](https://tailwindcss.com), [Firebase](https://firebase.google.com) for authentication, and [MongoDB](https://mongodb.com) for data storage.
+
+## Core Features
+
+-   **Transaction Management**: Create, list, and categorize income and expense entries.
+-   **Financial Dashboard**: View summaries of total income, expenses, and net balance.
+-   **Budgeting**: Set monthly budgets by category and track spending against them.
+-   **AI Receipt Parsing**: Upload receipt images or PDFs to automatically extract transaction data using Google Gemini.
+-   **Data Visualization**: Interactive charts for expense breakdown by category, budget vs. actual spending, and monthly trends.
+-   **User Authentication**: Secure sign-in with Google via Firebase Authentication.
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+-   Node.js (v18 or later)
+-   npm, yarn, or pnpm
+-   MongoDB database
+-   Firebase project for authentication
+-   Google Gemini API Key for receipt parsing
+
+### Environment Variables
+
+Create a `.env` file in the root of the project and add the following environment variables:
+
+```
+# Firebase Client Config (public)
+NEXT_PUBLIC_FB_API_KEY=
+NEXT_PUBLIC_FB_AUTH_DOMAIN=
+NEXT_PUBLIC_FB_PROJECT_ID=
+
+# Firebase Admin SDK (server-side)
+FB_PROJECT_ID=
+FB_CLIENT_EMAIL=
+FB_PRIVATE_KEY=
+
+# MongoDB
+MONGODB_URI=
+
+# Google Gemini API for Receipt Parsing
+GOOGLE_GEMINI_API_KEY=
+
+# Optional: Default category for uncategorized transactions
+NEXT_PUBLIC_FALLBACK_CATEGORY=Other
+```
+
+### Installation & Running the App
+
+First, install the dependencies:
+
+```bash
+npm install
+```
+
+Then, run the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
