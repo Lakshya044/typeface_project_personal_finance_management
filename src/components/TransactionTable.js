@@ -21,6 +21,7 @@ export default function TransactionTable({ limit }) {
       return;
     }
     if (new Date(fromDate) > new Date(toDate)) {
+      alert("Start date cannot be after end date. Please select a valid range.");
       setRangeError("Start date must be before end date.");
       return;
     }
@@ -39,14 +40,13 @@ export default function TransactionTable({ limit }) {
     (a, b) => new Date(b.date) - new Date(a.date)
   );
 
-  // Apply date range filter if active
+ 
   if (rangeActive) {
     rows = rows.filter((t) => {
       const d = new Date(t.date);
       return d >= new Date(fromDate) && d <= new Date(toDate);
     });
   } else {
-    // No range -> show recent 20 (overrides incoming limit requirement)
     rows = rows.slice(0, 20);
   }
 
