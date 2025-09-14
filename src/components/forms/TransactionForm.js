@@ -3,51 +3,105 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { transactionSchema } from "@/lib/validation";
-import {useTransactions} from "@/hooks/useTransactions";
 import { Button } from "@/components/ui/button";   
 import { Input } from "@/components/ui/input";
-
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
 import { CATEGORIES } from "@/lib/categories";
 
 export default function TransactionForm({ preset, onClose }) {
-  const { mutate } = useTransactions();
   const { register, handleSubmit, reset, setValue, formState } = useForm({
     resolver: zodResolver(transactionSchema),
     defaultValues: preset || {
       amount: "",
       date: new Date().toISOString().slice(0, 10),
       description: "",
+      category: CATEGORIES[0] || "Other"   // <-- added to avoid undefined
     },
   });
   const [loading, setLoading] = useState(false);
+  const [submitError, setSubmitError] = useState(""); // optional consolidated error
 
-  async function onSubmit(data) {
-    setLoading(true);
-    const method = preset?._id ? "PUT" : "POST";
-    const url = preset?._id
-      ? `/api/transactions/${preset._id}`
-      : "/api/transactions";
+  let mutate; // safe placeholder (not used unless injected)
 
-    const res = await fetch(url, { method, body: JSON.stringify(data) });
-    if (!res.ok) {
-      setLoading(false);
-      return;
+  const safeCreate = async (payload) => {
+    if (typeof mutate === "function") {
+      return await mutate(payload);
     }
-    await mutate();          
-    reset();                
-    setLoading(false);
-    onClose?.();
+    const res = await fetch("/api/transactions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      throw new Error(
+        data?.errors?.[0]?.message ||
+        (Array.isArray(data?.errors) && data.errors[0]) ||
+        data?.error ||
+        "Save failed"
+      );
+    }
+    return data;
+  };
 
+  async function onSubmit(formData) {
+    setSubmitError("");
+    setLoading(true);
     try {
-      if (typeof window !== "undefined") {
-        window.dispatchEvent(new Event("transactions-changed")); 
+      // normalize numeric
+      const numericAmount = Number(formData.amount);
+      if (!Number.isFinite(numericAmount) || numericAmount === 0) {
+        throw new Error("Amount must be a non-zero number.");
       }
-    } catch {}
+      const payload = {
+        date: formData.date,
+        amount: numericAmount,
+        category: formData.category,
+        description: formData.description.trim()
+      };
+
+      if (preset?._id) {
+        // UPDATE (PUT)
+        const res = await fetch(`/api/transactions/${preset._id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+            throw new Error(
+              data?.errors?.[0]?.message ||
+              (Array.isArray(data?.errors) && data.errors[0]) ||
+              data?.error ||
+              "Update failed"
+            );
+        }
+      } else {
+        // CREATE
+        await safeCreate(payload);
+      }
+
+      reset({
+        amount: "",
+        date: new Date().toISOString().slice(0, 10),
+        description: "",
+        category: CATEGORIES[0] || "Other"
+      });
+
+      onClose?.();
+      try { window.dispatchEvent(new Event("transactions-changed")); } catch {}
+    } catch (e) {
+      setSubmitError(e.message || "Operation failed");
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      {submitError && (
+        <p className="text-red-400 text-sm bg-red-900/20 border border-red-800 rounded p-2">{submitError}</p>
+      )}
       <div className="space-y-2">
         <label className="block text-sm font-medium text-gray-300">Amount</label>
         <Input 
@@ -82,8 +136,8 @@ export default function TransactionForm({ preset, onClose }) {
       <div className="space-y-2">
         <label className="block text-sm font-medium text-gray-300">Category</label>
         <Select
-          defaultValue={preset?.category}
-          onValueChange={(val) => setValue("category", val)}
+          defaultValue={preset?.category || (CATEGORIES[0] || "Other")}
+          onValueChange={(val) => setValue("category", val, { shouldValidate: true })}
         >
           <SelectTrigger className="bg-gray-700 border-gray-600 text-white focus:ring-blue-500 focus:border-blue-500">
             <SelectValue placeholder="Select a category" />
@@ -115,7 +169,7 @@ export default function TransactionForm({ preset, onClose }) {
             Saving...
           </div>
         ) : (
-          "Save Transaction"
+          (preset?._id ? "Update Transaction" : "Save Transaction")
         )}
       </Button>
     </form>
