@@ -68,8 +68,8 @@ export const GET = withAuth(async (user, req) => {
 
   if (hasPagination) {
     const page = Math.max(1, parseInt(sp.get("page") || "1", 10));
-    const limitRaw = parseInt(sp.get("limit") || "10", 10);
-    const limit = Math.min(10, Math.max(1, isNaN(limitRaw) ? 10 : limitRaw));
+    const limitRaw = parseInt(sp.get("limit") || "5", 10); // Changed default to 5
+    const limit = Math.min(100, Math.max(1, isNaN(limitRaw) ? 5 : limitRaw)); // Changed default and max
     const skip = (page - 1) * limit;
 
     const totalCount = await collection.countDocuments(query);

@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState } from "react";
@@ -74,43 +73,73 @@ export default function BudgetForm({ preset, defaultMonth, onClose }) {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       {/* Month */}
-      <Input {...register("month")} type="month" />
+      <div className="space-y-2">
+        <label className="block text-sm font-medium text-gray-300">Month</label>
+        <Input 
+          {...register("month")} 
+          type="month" 
+          className="bg-gray-700 border-gray-600 text-white focus:ring-blue-500 focus:border-blue-500"
+        />
+      </div>
 
       {/* Category */}
-      <Select
-        defaultValue={preset?.category}
-        onValueChange={(v) => setValue("category", v)}
-        {...register("category")}
-      >
-        <SelectTrigger>
-          <SelectValue placeholder="Category" />
-        </SelectTrigger>
-        <SelectContent>
-          {CATEGORIES.map((c) => (
-            <SelectItem key={c} value={c}>
-              {c}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-      {errors.category && (
-        <p className="text-red-600 text-sm">{errors.category.message}</p>
-      )}
+      <div className="space-y-2">
+        <label className="block text-sm font-medium text-gray-300">Category</label>
+        <Select
+          defaultValue={preset?.category}
+          onValueChange={(v) => setValue("category", v)}
+          {...register("category")}
+        >
+          <SelectTrigger className="bg-gray-700 border-gray-600 text-white focus:ring-blue-500 focus:border-blue-500">
+            <SelectValue placeholder="Select category" />
+          </SelectTrigger>
+          <SelectContent className="bg-gray-700 border-gray-600">
+            {CATEGORIES.map((c) => (
+              <SelectItem 
+                key={c} 
+                value={c}
+                className="text-white hover:bg-gray-600 focus:bg-gray-600"
+              >
+                {c}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        {errors.category && (
+          <p className="text-red-400 text-sm">{errors.category.message}</p>
+        )}
+      </div>
 
       {/* Amount */}
-      <Input
-        {...register("amount", { valueAsNumber: true })}
-        placeholder="Amount (₹)"
-        type="number"
-      />
-      {errors.amount && (
-        <p className="text-red-600 text-sm">{errors.amount.message}</p>
-      )}
+      <div className="space-y-2">
+        <label className="block text-sm font-medium text-gray-300">Budget Amount</label>
+        <Input
+          {...register("amount", { valueAsNumber: true })}
+          placeholder="Enter budget amount in ₹"
+          type="number"
+          step="0.01"
+          className="bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:ring-blue-500 focus:border-blue-500"
+        />
+        {errors.amount && (
+          <p className="text-red-400 text-sm">{errors.amount.message}</p>
+        )}
+      </div>
 
       {/* Action buttons */}
-      <div className="flex gap-2">
-        <Button type="submit" disabled={loading} className="w-full">
-          {loading ? "Saving…" : "Save"}
+      <div className="flex gap-3">
+        <Button 
+          type="submit" 
+          disabled={loading} 
+          className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200"
+        >
+          {loading ? (
+            <div className="flex items-center justify-center">
+              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+              Saving...
+            </div>
+          ) : (
+            "Save Budget"
+          )}
         </Button>
 
         {preset?._id && (
@@ -119,6 +148,7 @@ export default function BudgetForm({ preset, defaultMonth, onClose }) {
             variant="destructive"
             disabled={loading}
             onClick={handleDelete}
+            className="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200"
           >
             Delete
           </Button>

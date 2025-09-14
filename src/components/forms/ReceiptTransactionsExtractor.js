@@ -166,92 +166,149 @@ function guessCategory(raw = '') {
   }
 
   return (
-    <div style={{ border: '1px solid #ddd', padding: '1rem', borderRadius: 8 }}>
-      <h2 style={{ marginTop: 0 }}>Receipt Transactions Extractor</h2>
-      <form onSubmit={handleSubmit(onSubmit)} style={{ marginBottom: '0.75rem' }}>
-        <input
-          type="file"
-          accept="application/pdf,image/*"
-          disabled={loading || saving}
-          onChange={handleFileChange}
-        />
-        <button
-          type="submit"
-          style={{ marginLeft: '0.5rem' }}
-          disabled={!file || loading || saving}
-        >
-          {loading ? 'Processing...' : 'Upload & Parse'}
-        </button>
-      </form>
-      <p style={{ fontSize: '0.75rem', color: '#555', marginTop: 0 }}>
-        Provider: {providerUsed || process.env.NEXT_PUBLIC_RECEIPT_PARSER_PROVIDER || 'Gemini'} | Expenses negative, credits positive. Max file size 10MB.
-      </p>
-      {error && <div style={{ color: 'red', fontSize: '0.85rem', marginTop: '0.5rem' }}>{error}</div>}
-      {info && <div style={{ color: 'green', fontSize: '0.85rem', marginTop: '0.5rem' }}>{info}</div>}
-      {transactions.length > 0 && (
-        <div style={{ marginTop: '1rem' }}>
-          <table style={{ width: '100%', fontSize: '0.8rem', borderCollapse: 'collapse' }}>
-            <thead>
-              <tr>
-                <th style={th}>#</th>
-                <th style={th}>Date{/* NEW */}</th>
-                <th style={th}>Amount</th>
-                <th style={th}>Type</th>
-                <th style={th}>Raw Snippet</th>
-              </tr>
-            </thead>
-            <tbody>
-              {transactions.map((t, i) => (
-                <tr key={i} style={{ background: '#fafafa' }}>
-                  <td style={td}>{i + 1}</td>
-                  <td style={td}>{(typeof t.date === 'string' && t.date) || '—'}</td> {/* NEW */}
-                  <td style={{ ...td, color: t.amount < 0 ? '#b00' : '#060' }}>{t.amount}</td>
-                  <td style={td}>{t.type}</td>
-                  <td style={td}>{t.raw || ''}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          <div style={{ marginTop: '0.75rem' }}>
-            <button onClick={saveAll} disabled={saving}>
-              {saving ? 'Saving...' : 'Save All'}
+    <div className="bg-gray-800 border border-gray-700 rounded-lg p-6">
+      <div className="mb-6">
+        <h3 className="text-lg font-semibold text-white mb-2">AI Receipt Parser</h3>
+        <p className="text-sm text-gray-400">Upload receipts to automatically extract transaction data</p>
+      </div>
+
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-gray-300">Select Receipt File</label>
+          <div className="flex items-center space-x-3">
+            <input
+              type="file"
+              accept="application/pdf,image/*"
+              disabled={loading || saving}
+              onChange={handleFileChange}
+              className="block w-full text-sm text-gray-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-600 file:text-white hover:file:bg-blue-700 file:cursor-pointer bg-gray-700 border border-gray-600 rounded-lg"
+            />
+            <button
+              type="submit"
+              disabled={!file || loading || saving}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              {loading ? (
+                <div className="flex items-center">
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                  Processing...
+                </div>
+              ) : (
+                'Parse Receipt'
+              )}
             </button>
           </div>
         </div>
+      </form>
+
+      <div className="mt-4 text-xs text-gray-400 bg-gray-750 rounded-lg p-3">
+        <div className="flex items-center space-x-2 mb-2">
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span>AI Provider: {providerUsed || process.env.NEXT_PUBLIC_RECEIPT_PARSER_PROVIDER || 'Gemini'}</span>
+        </div>
+        <p>Supports PDF and image files up to 10MB. Expenses will be marked as negative amounts.</p>
+      </div>
+
+      {error && (
+        <div className="mt-4 flex items-center space-x-2 bg-red-900/20 border border-red-800 rounded-lg p-3 text-red-400">
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span>{error}</span>
+        </div>
       )}
-      <p style={{ fontSize: '0.65rem', color: '#777', marginTop: '0.25rem' }}>
-        Using endpoint: <code>{TRANSACTION_ENDPOINT}</code>{' '}
+
+      {info && (
+        <div className="mt-4 flex items-center space-x-2 bg-green-900/20 border border-green-800 rounded-lg p-3 text-green-400">
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span>{info}</span>
+        </div>
+      )}
+
+      {transactions.length > 0 && (
+        <div className="mt-6 space-y-4">
+          <div className="flex items-center justify-between">
+            <h4 className="text-base font-medium text-white">Extracted Transactions</h4>
+            <button 
+              onClick={saveAll} 
+              disabled={saving}
+              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 focus:ring-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              {saving ? (
+                <div className="flex items-center">
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                  Saving...
+                </div>
+              ) : (
+                'Save All Transactions'
+              )}
+            </button>
+          </div>
+
+          <div className="bg-gray-750 border border-gray-600 rounded-lg overflow-hidden">
+            <table className="w-full text-sm">
+              <thead className="bg-gray-700">
+                <tr>
+                  <th className="text-left p-3 text-gray-300 font-medium">#</th>
+                  <th className="text-left p-3 text-gray-300 font-medium">Date</th>
+                  <th className="text-left p-3 text-gray-300 font-medium">Amount</th>
+                  <th className="text-left p-3 text-gray-300 font-medium">Type</th>
+                  <th className="text-left p-3 text-gray-300 font-medium">Description</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-600">
+                {transactions.map((t, i) => (
+                  <tr key={i} className="hover:bg-gray-700">
+                    <td className="p-3 text-gray-300">{i + 1}</td>
+                    <td className="p-3 text-gray-300 font-mono">{(typeof t.date === 'string' && t.date) || '—'}</td>
+                    <td className={`p-3 font-mono font-semibold ${t.amount < 0 ? 'text-red-400' : 'text-green-400'}`}>
+                      ₹{Math.abs(t.amount).toFixed(2)}
+                    </td>
+                    <td className="p-3">
+                      <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                        t.type === 'expense' ? 'bg-red-900 text-red-300' : 'bg-green-900 text-green-300'
+                      }`}>
+                        {t.type}
+                      </span>
+                    </td>
+                    <td className="p-3 text-gray-300 max-w-xs truncate">{t.raw || 'No description'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* <div className="mt-4 text-xs text-gray-400 flex items-center justify-between">
+        <span>Endpoint: <code className="bg-gray-700 px-1 rounded">{TRANSACTION_ENDPOINT}</code></span>
         <button
           type="button"
           onClick={() => setDebugOpen(o => !o)}
-          style={{ marginLeft: '0.5rem' }}
+          className="text-blue-400 hover:text-blue-300 transition-colors"
         >
           {debugOpen ? 'Hide Debug' : 'Show Debug'}
         </button>
-      </p>
-      {debugOpen && debugLines.length > 0 && (
-        <div
-          style={{
-            marginTop: '1rem',
-            background: '#1e1e1e',
-            color: '#d1d1d1',
-            padding: '0.75rem',
-            borderRadius: 6,
-            fontSize: '0.7rem',
-            maxHeight: 220,
-            overflow: 'auto'
-          }}
-        >
-          <strong>Debug Log</strong>
-          <pre style={{ whiteSpace: 'pre-wrap' }}>
-{JSON.stringify(debugLines, null, 2)}
-          </pre>
-          <p style={{ margin: 0 }}>
-            If requests fail with 404: verify the server route path matches {TRANSACTION_ENDPOINT}. If 400: check category
-            enum or date/amount validation.
-          </p>
-        </div>
-      )}
+      </div> */}
+
+      {/* {debugOpen && debugLines.length > 0 && (
+        // <div className="mt-4 bg-gray-900 border border-gray-600 rounded-lg p-4">
+        //   <h5 className="text-sm font-medium text-white mb-2">Debug Information</h5>
+        //   <div className="bg-black rounded p-3 max-h-60 overflow-auto">
+        //     <pre className="text-xs text-green-400 whitespace-pre-wrap">
+        //       {JSON.stringify(debugLines, null, 2)}
+        //     </pre>
+        //   </div>
+        //   <p className="text-xs text-gray-400 mt-2">
+        //     If requests fail with 404: verify the server route path matches {TRANSACTION_ENDPOINT}. 
+        //     If 400: check category enum or date/amount validation.
+        //   </p>
+        // </div>
+      )} */}
     </div>
   );
 };
