@@ -151,48 +151,50 @@ export default function TransactionTable({ limit = 500 }) {
         </p>
       )}
 
-      <table className="w-full border-collapse bg-gray-800 border border-gray-700 rounded-lg overflow-hidden">
-        <thead className="bg-gray-750">
-          <tr className="text-left border-b border-gray-700">
-            <th className="p-2 text-gray-300 font-medium">Date</th>
-            <th className="p-2 text-gray-300 font-medium">Amount</th>
-            <th className="p-2 text-gray-300 font-medium">Category</th>
-            <th className="p-2 text-gray-300 font-medium">Description</th>
-            <th className="text-gray-300 font-medium" />
-          </tr>
-        </thead>
-        <tbody>
-          {transactions.map((t) => (
-            <tr key={t._id} className="border-b border-gray-700 hover:bg-gray-750 transition-colors">
-              <td className="p-2 text-gray-300 font-mono">{t.date}</td>
-              <td className={`p-2 font-mono font-semibold ${t.amount < 0 ? 'text-red-400' : 'text-green-400'}`}>
-                {t.amount < 0 ? '-' : '+'}₹{Math.abs(t.amount).toFixed(2)}
-              </td>
-              <td className="p-2">
-                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-900 text-blue-300 border border-blue-800">
-                  {t.category}
-                </span>
-              </td>
-              <td className="p-2 text-gray-300">{t.description}</td>
-              <td className="p-2">
-                <Button variant="ghost" onClick={() => handleDelete(t._id)} className="text-red-400 hover:text-red-300 hover:bg-red-900/20 hover:scale-110 hover:shadow-md transition-all duration-200 transform">
-                  🗑️
-                </Button>
-              </td>
+      <div className="overflow-x-auto">
+        <table className="w-full border-collapse bg-gray-800 border border-gray-700 rounded-lg overflow-hidden min-w-full">
+          <thead className="bg-gray-750">
+            <tr className="text-left border-b border-gray-700">
+              <th className="p-2 text-gray-300 font-medium whitespace-nowrap">Date</th>
+              <th className="p-2 text-gray-300 font-medium whitespace-nowrap">Amount</th>
+              <th className="p-2 text-gray-300 font-medium whitespace-nowrap">Category</th>
+              <th className="p-2 text-gray-300 font-medium">Description</th>
+              <th className="text-gray-300 font-medium whitespace-nowrap" />
             </tr>
-          ))}
-          {loading && (
-            <tr>
-              <td
-                colSpan={5}
-                className="p-2 text-center text-xs text-gray-400"
-              >
-                Loading…
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {transactions.map((t) => (
+              <tr key={t._id} className="border-b border-gray-700 hover:bg-gray-750 transition-colors">
+                <td className="p-2 text-gray-300 font-mono whitespace-nowrap">{t.date}</td>
+                <td className={`p-2 font-mono font-semibold whitespace-nowrap ${t.amount < 0 ? 'text-red-400' : 'text-green-400'}`}>
+                  ₹{Math.abs(t.amount).toFixed(2)}
+                </td>
+                <td className="p-2 whitespace-nowrap">
+                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-900 text-blue-300 border border-blue-800">
+                    {t.category}
+                  </span>
+                </td>
+                <td className="p-2 text-gray-300 max-w-xs truncate">{t.description}</td>
+                <td className="p-2 whitespace-nowrap">
+                  <Button variant="ghost" onClick={() => handleDelete(t._id)} className="text-red-400 hover:text-red-300 hover:bg-red-900/20 hover:scale-110 hover:shadow-md transition-all duration-200 transform">
+                    🗑️
+                  </Button>
+                </td>
+              </tr>
+            ))}
+            {loading && (
+              <tr>
+                <td
+                  colSpan={5}
+                  className="p-2 text-center text-xs text-gray-400"
+                >
+                  Loading…
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
 
       <div className="flex items-center gap-3 mt-4 text-sm bg-gray-800 border border-gray-700 rounded-lg p-4">
         <Button
