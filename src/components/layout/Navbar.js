@@ -1,4 +1,3 @@
-
 "use client";
 
 import Link from "next/link";
@@ -12,11 +11,22 @@ export default function Navbar() {
   return (
     <header className="border-b">
       <nav className="container mx-auto flex items-center gap-6 p-4">
-         <Link href="/dashboard">Dashboard</Link>
-        <Link href="/addTransaction">Add Transaction</Link>
-       
+        {user ? (
+          <>
+            <Link href="/dashboard">Dashboard</Link>
+            <Link href="/addTransaction">Add Transaction</Link>
+          </>
+        ) : (
+          <>
+            <span className="text-gray-400 cursor-not-allowed select-none">
+              {/* Dashboard */}
+            </span>
+            <span className="text-gray-400 cursor-not-allowed select-none">
+              {/* Add Transaction */}
+            </span>
+          </>
+        )}
 
-        
         <div className="ml-auto">
           {!loading && !user && (
             <Button onClick={signInWithGoogle}>Sign in with Google</Button>
